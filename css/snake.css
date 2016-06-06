@@ -1,0 +1,45 @@
+.snake{
+  border: 5px solid black;
+  width: 600px;
+  height: 600px;
+}
+
+ul{
+  list-style: none;
+}
+
+.row{
+  margin: auto auto;
+  padding: 0 0;
+  width: 600px;
+  height: 30px;
+}
+
+
+.col{
+  box-sizing: border-box;
+  padding: 0 0;
+  height: 30px;
+  width: 30px;
+  float: left;
+  /*border: 5px solid black;*/
+  background: cornflowerblue;
+}
+
+.segment1{
+  background: red;
+}
+
+.segment2{
+  background: blue;
+}
+
+.apple{
+  background: purple;
+  color: white;
+  font-size: 30px;
+}
+
+.score{
+  color: black;
+}
