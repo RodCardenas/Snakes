@@ -91,36 +91,36 @@ Board.prototype.render = function () {
   try {
     this.snake1.harakiri();
   }catch(e){
-    throw new Error("Snake1 dead!");
+    throw new Error("Red Snake dead!");
   }
   try {
     this.snake2.harakiri();
   }catch(e){
-    throw new Error("Snake2 dead!");
+    throw new Error("Blue Snake dead!");
   }
 
   try {
   this.snakeOutOfBounds(this.snake1);
   }catch(e){
-    throw new Error("Snake1 Out of Bounds!");
+    throw new Error("Red Snake Out of Bounds!");
   }
 
   try {
     this.snakeOutOfBounds(this.snake2);
   }catch(e){
-    throw new Error("Snake2 Out of Bounds!");
+    throw new Error("Blue Snake Out of Bounds!");
   }
 
   try {
     this.snakeCrossing(this.snake1, this.snake2);
   }catch(e){
-    throw new Error("Snake1 ran into snake2!");
+    throw new Error("Red Snake ran into snake2!");
   }
 
   try {
     this.snakeCrossing(this.snake2, this.snake1);
   }catch(e){
-    throw new Error("Snake2 ran into snake1!");
+    throw new Error("Blue Snake ran into snake1!");
   }
 
   this.ateApple(this.snake1);

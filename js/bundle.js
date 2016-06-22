@@ -65,8 +65,6 @@
 	  this.loop = null;
 	  this.setupDOMObj();
 	  this.bindEvents();
-	
-	
 	};
 	
 	View.prototype.setupDOMObj = function () {
@@ -78,7 +76,7 @@
 	    }
 	  }
 	
-	  $(".start-game").after("<p class='score'>Score: </p>");
+	  // $(".start-game").after("<p class='score'>Score: </p>");
 	};
 	
 	View.prototype.step = function () {
@@ -109,9 +107,9 @@
 	  });
 	
 	  $("li[data-pos='"+apple[1]+","+apple[0]+"']").addClass("apple");
-	  $(".apple").text("\ud83c\udf4e");
 	
-	  $(".score").text(this.board.score);
+	  $(".apple").text("\uD83C\uDF6C");
+	  // $(".score").text(this.board.score);
 	};
 	
 	View.prototype.bindEvents = function () {
@@ -123,6 +121,26 @@
 	      view.loop = setInterval(view.step.bind(view), 250);
 	    }
 	  });
+	
+	  var audio = document.getElementById("pokesong");
+	  var playpause = true;
+	
+	  $(".pokesong").on("click", function(e){
+	    e.preventDefault();
+	    playpause = !playpause;
+	
+	    if(playpause)
+	    {
+	      audio.pause();
+	      $(".pokesong").text("►");
+	    }
+	    else
+	    {
+	      audio.play();
+	      $(".pokesong").text("❚❚");
+	    }
+	  });
+	
 	  $(".snake").focus();
 	  $(window).on("keydown", function(e){
 	    // console.log(e.keyCode);
@@ -264,36 +282,36 @@
 	  try {
 	    this.snake1.harakiri();
 	  }catch(e){
-	    throw new Error("Snake1 dead!");
+	    throw new Error("Red Snake dead!");
 	  }
 	  try {
 	    this.snake2.harakiri();
 	  }catch(e){
-	    throw new Error("Snake2 dead!");
+	    throw new Error("Blue Snake dead!");
 	  }
 	
 	  try {
 	  this.snakeOutOfBounds(this.snake1);
 	  }catch(e){
-	    throw new Error("Snake1 Out of Bounds!");
+	    throw new Error("Red Snake Out of Bounds!");
 	  }
 	
 	  try {
 	    this.snakeOutOfBounds(this.snake2);
 	  }catch(e){
-	    throw new Error("Snake2 Out of Bounds!");
+	    throw new Error("Blue Snake Out of Bounds!");
 	  }
 	
 	  try {
 	    this.snakeCrossing(this.snake1, this.snake2);
 	  }catch(e){
-	    throw new Error("Snake1 ran into snake2!");
+	    throw new Error("Red Snake ran into snake2!");
 	  }
 	
 	  try {
 	    this.snakeCrossing(this.snake2, this.snake1);
 	  }catch(e){
-	    throw new Error("Snake2 ran into snake1!");
+	    throw new Error("Blue Snake ran into snake1!");
 	  }
 	
 	  this.ateApple(this.snake1);
