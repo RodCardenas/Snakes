@@ -4,6 +4,12 @@ body{
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
+  color: white;
+}
+
+h3{
+  font-weight: normal;
+  margin: 0 0;
 }
 
 .play-area{
@@ -12,25 +18,24 @@ body{
 }
 
 .title-container{
-  color: black;
   width: 100%;
   display: flex;
+  margin-bottom: 20px;
 }
 
 .title{
-  background: rgba(180, 180, 180, 0.3);
+  font-size: 40px;
   margin-left: auto;
   margin-right: auto;
 }
 
 .instructions-container{
-  color: black;
   width: 100%;
   display: flex;
+  margin-bottom: 20px;
 }
 
 .instructions{
-  background: rgba(180, 180, 180, 0.3);
   margin-left: auto;
   margin-right: auto;
 }
@@ -43,14 +48,18 @@ body{
 }
 
 .button{
-  margin:0 ;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  font-family: inherit;
-  font-size: 18px;
-  cursor: pointer;
-  color: #9EACAD;
+  color: white;
+  margin: 10px;
+  padding: 5px 8px 5px 8px;
+  border: 2px solid black;
+  border-radius: 4px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -o-border-radius: 4px;
+  font-size: 12px;
+  background-color: rgba(180, 180, 180, 0.7);
+  font-weight: normal;
+  letter-spacing: 1px;
 }
 
 .snake{
@@ -78,7 +87,7 @@ ul{
   width: 30px;
   float: left;
   /*border: 5px solid black;*/
-  background: darkseagreen;
+  background: rgba(180, 180, 180, 0.4);
 }
 
 .segment1{
@@ -90,7 +99,7 @@ ul{
 }
 
 .apple{
-  background: darkseagreen;
+  background: rgba(180, 180, 180, 0.4);
   color: white;
   font-size: 30px;
 }
@@ -100,10 +109,23 @@ ul{
 }
 
 .fire {
+  color: red;
           animation: burn 1.5s linear infinite alternate;
   -webkit-animation: burn 1.5s linear infinite alternate;
      -moz-animation: burn 1.5s linear infinite alternate;
       -ms-animation: burn 1.5s linear infinite alternate;
+}
+
+.water {
+  background: -webkit-gradient(
+  linear,
+  left bottom,
+  left top,
+  color-stop(0, rgb(0,50,150)),
+  color-stop(0.50, rgb(0,150,255))
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 @keyframes burn {
@@ -132,4 +154,28 @@ ul{
   45%  { text-shadow: .1em -.2em .5em #fefcc9, .15em 0 .4em #feec85, -.1em -.25em .5em #ffae34, .15em -.45em .5em #ec760c, -.1em -.5em .6em #cd4606, 0 -.8em .6em #973716, .2em -1em .8em #451b0e; }
   70%  { text-shadow: -.1em 0 .3em #fefcc9, .1em -.1em .3em #feec85, -.2em -.2em .6em #ffae34, .2em -.3em .4em #ec760c, -.2em -.4em .7em #cd4606, .1em -.5em .7em #973716, .1em -.7em .9em #451b0e; }
   to   { text-shadow: -.1em -.2em .6em #fefcc9, -.15em 0 .6em #feec85, .1em -.25em .6em #ffae34, -.15em -.45em .5em #ec760c, .1em -.5em .6em #cd4606, 0 -.8em .6em #973716, -.2em -1em .8em #451b0e; }
+}
+
+.wave{
+  background:#a8e3ff;
+  display:inline-block;
+
+  position:absolute;
+  -webkit-animation-name:             wavey;
+  -webkit-animation-duration:         3s;
+  -webkit-animation-iteration-count:  infinite;
+  -webkit-transition-timing-function: ease-in-out;
+}
+
+
+@-webkit-keyframes wavey{
+  0%{
+    height:60%;
+  }
+  50%{
+    height:40%;
+  }
+  100%{
+    height:60%;
+  }
 }
