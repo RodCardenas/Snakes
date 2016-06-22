@@ -65,7 +65,7 @@ View.prototype.bindEvents = function () {
   });
 
   var audio = document.getElementById("pokesong");
-  var playpause = true;
+  var playpause = false;
 
   $(".pokesong").on("click", function(e){
     e.preventDefault();
