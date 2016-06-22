@@ -1,7 +1,5 @@
-# Snakes
+# [Snakes](http://rodcardenas.github.io/Snakes/)
 A snake game with two player capability.
-
-http://rodcardenas.github.io/Snakes/
 
 ### Instructions
 The classic game is remade in a two player fashion. Who can grow the biggest snake while competing for the same apples while avoiding the other snake?

@@ -7,8 +7,6 @@ var View = function($el){
   this.loop = null;
   this.setupDOMObj();
   this.bindEvents();
-
-
 };
 
 View.prototype.setupDOMObj = function () {
@@ -20,7 +18,7 @@ View.prototype.setupDOMObj = function () {
     }
   }
 
-  $(".start-game").after("<p class='score'>Score: </p>");
+  // $(".start-game").after("<p class='score'>Score: </p>");
 };
 
 View.prototype.step = function () {
@@ -51,7 +49,7 @@ View.prototype.step = function () {
   });
 
   $("li[data-pos='"+apple[1]+","+apple[0]+"']").addClass("apple");
-  $(".apple").text("\ud83c\udf4e");
+  $(".apple").text("\uD83C\uDF6C");
 
   $(".score").text(this.board.score);
 };
@@ -65,6 +63,27 @@ View.prototype.bindEvents = function () {
       view.loop = setInterval(view.step.bind(view), 250);
     }
   });
+
+  var audio = document.getElementById("pokesong");
+  var playpause = true;
+
+  $(".pokesong").on("click", function(e){
+    e.preventDefault();
+    playpause = !playpause;
+
+    if(playpause)
+    {
+      audio.pause();
+      $(".pokesong").text("►");
+    }
+    else
+    {
+      audio.play();
+      $(".pokesong").text("❚❚");
+    }
+  });
+
+
   $(".snake").focus();
   $(window).on("keydown", function(e){
     // console.log(e.keyCode);
