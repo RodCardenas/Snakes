@@ -110,6 +110,7 @@
 	
 	View.prototype.bindEvents = function () {
 	  var view = this;
+	
 	  $(".start-game").on("click", function(e){
 	    e.preventDefault();
 	    if(view.loop === null){
@@ -137,10 +138,16 @@
 	    }
 	  });
 	
+	  $("#players-label").on("click", function(e){
+	    if($("#players").prop('checked')){
+	      console.log("h v h");
+	    } else {
+	      console.log("h v p");
+	    }
+	  });
 	
 	  $(".snake").focus();
 	  $(window).on("keydown", function(e){
-	    // console.log(e.keyCode);
 	    view.handleKeyPress(e.keyCode);
 	  });
 	};
