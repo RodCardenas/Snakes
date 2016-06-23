@@ -56,7 +56,7 @@
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Board = __webpack_require__(2);
+	var Board = __webpack_require__(3);
 	
 	var View = function($el){
 	  this.SIZE = [20,20];
@@ -75,8 +75,6 @@
 	        .append("<li class='col' data-pos='"+[i,j]+"'></li>");
 	    }
 	  }
-	
-	  // $(".start-game").after("<p class='score'>Score: </p>");
 	};
 	
 	View.prototype.step = function () {
@@ -108,8 +106,6 @@
 	
 	  $("li[data-pos='"+apple[1]+","+apple[0]+"']").addClass("apple");
 	  $(".apple").text("\uD83C\uDF6C");
-	
-	  $(".score").text(this.board.score);
 	};
 	
 	View.prototype.bindEvents = function () {
@@ -190,10 +186,11 @@
 /* 2 */
 /***/ function(module, exports) {
 
-	var Snake = function(pos){
+	var Snake = function(pos, color){
 	  this.direction = "N";
 	  this.segments = [pos];
 	  this.turnsToGrow = 0;
+	  this.color = color;
 	};
 	
 	Snake.prototype.move = function () {
@@ -233,7 +230,6 @@
 	  }else{
 	    this.segments.pop(1);
 	  }
-	
 	};
 	
 	Snake.prototype.turn = function (direction) {
@@ -254,24 +250,33 @@
 	
 	
 	Snake.prototype.grow = function () {
-	  this.turnsToGrow += 2;
+	  this.turnsToGrow += 1;
 	};
 	
 	
+	module.exports = Snake;
+
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Snake = __webpack_require__(2);
+	
 	var Board = function(size){
 	  this.size = size;
-	  this.snake1 = new Snake([Math.floor(size[0]/2), Math.floor(size[1]/2)]);
-	  this.snake2 = new Snake([Math.floor(size[0]/2) + 1, Math.floor(size[1]/2)]);
+	  this.snake1 = new Snake([Math.floor(size[0]/2), Math.floor(size[1]/2)], "Red");
+	  this.snake2 = new Snake([Math.floor(size[0]/2) + 1, Math.floor(size[1]/2)], "Blue");
 	  this.apple = [Math.floor(Math.random() * size[0]),
 	    Math.floor(Math.random() * size[1])];
-	  this.score = 0;
 	};
 	
 	Board.prototype.move = function (direction) {
 	  var snake1Dirs = ["N","E","W","S"];
+	  var snake2Dirs = ["up","right","left","down"];
 	  if(snake1Dirs.indexOf(direction) !== -1 ){
 	    this.snake1.turn(direction);
-	  }else{
+	  }else if (snake2Dirs.indexOf(direction) !== -1) {
 	    this.snake2.turn(direction);
 	  }
 	};
@@ -283,12 +288,13 @@
 	  try {
 	    this.snake1.harakiri();
 	  }catch(e){
-	    throw new Error("Red Snake dead!");
+	    throw new Error("Red Snake went over itself and is dead!");
 	  }
+	
 	  try {
 	    this.snake2.harakiri();
 	  }catch(e){
-	    throw new Error("Blue Snake dead!");
+	    throw new Error("Blue Snake went over itself and is dead!");
 	  }
 	
 	  try {
@@ -306,13 +312,13 @@
 	  try {
 	    this.snakeCrossing(this.snake1, this.snake2);
 	  }catch(e){
-	    throw new Error("Red Snake ran into snake2!");
+	    throw new Error("Red Snake ran into Blue Snake!");
 	  }
 	
 	  try {
 	    this.snakeCrossing(this.snake2, this.snake1);
 	  }catch(e){
-	    throw new Error("Blue Snake ran into snake1!");
+	    throw new Error("Blue Snake ran into Red Snake!");
 	  }
 	
 	  this.ateApple(this.snake1);
@@ -335,7 +341,6 @@
 	Board.prototype.ateApple = function (snake) {
 	  if (snake.segments[0][0] === this.apple[0] &&
 	        snake.segments[0][1] === this.apple[1]){
-	    // snake.score += 10;
 	    snake.grow();
 	    this.regenerateApple();
 	  }
@@ -343,12 +348,11 @@
 	
 	Board.prototype.reset = function () {
 	  this.snake1 = new Snake([Math.floor(this.size[0]/2),
-	    Math.floor(this.size[1]/2)]);
+	    Math.floor(this.size[1]/2)], "Red");
 	  this.snake2 = new Snake([Math.floor(this.size[0]/2) + 1,
-	    Math.floor(this.size[1]/2)]);
+	    Math.floor(this.size[1]/2)], "Blue");
 	  this.apple = [Math.floor(Math.random() * this.size[0]),
 	    Math.floor(Math.random() * this.size[1])];
-	  this.score = 0;
 	};
 	
 	Board.prototype.snakeOutOfBounds = function (snake) {

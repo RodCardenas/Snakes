@@ -104,10 +104,6 @@ ul{
   font-size: 30px;
 }
 
-.score{
-  color: black;
-}
-
 .fire {
   color: red;
           animation: burn 1.5s linear infinite alternate;

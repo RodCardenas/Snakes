@@ -1,4 +1,4 @@
-var Board = require("./snake");
+var Board = require("./board");
 
 var View = function($el){
   this.SIZE = [20,20];
@@ -17,8 +17,6 @@ View.prototype.setupDOMObj = function () {
         .append("<li class='col' data-pos='"+[i,j]+"'></li>");
     }
   }
-
-  // $(".start-game").after("<p class='score'>Score: </p>");
 };
 
 View.prototype.step = function () {
@@ -50,8 +48,6 @@ View.prototype.step = function () {
 
   $("li[data-pos='"+apple[1]+","+apple[0]+"']").addClass("apple");
   $(".apple").text("\uD83C\uDF6C");
-
-  $(".score").text(this.board.score);
 };
 
 View.prototype.bindEvents = function () {
