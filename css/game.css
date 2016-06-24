@@ -100,7 +100,6 @@ ul{
   height: 30px;
   width: 30px;
   float: left;
-  /*border: 5px solid black;*/
   background: rgba(180, 180, 180, 0.5);
 }
 
@@ -232,14 +231,20 @@ ul{
   border-radius: 4px;
 }
 .tgl-flip + .tgl-btn:after {
-  content: attr(data-tg-on);
+  content: attr(tagOn);
   background: #02C66F;
   -webkit-transform: rotateY(-180deg);
           transform: rotateY(-180deg);
 }
 .tgl-flip + .tgl-btn:before {
-  background: #cc1f00;
-  content: attr(data-tg-off);
+  background: -webkit-gradient(
+  linear,
+  left bottom,
+  left top,
+  color-stop(0, rgb(90,18,0)),
+  color-stop(0.50, rgb(204,31,0))
+  );
+  content: attr(tagOff);
 }
 .tgl-flip + .tgl-btn:active:before {
   -webkit-transform: rotateY(-20deg);
@@ -253,7 +258,13 @@ ul{
   -webkit-transform: rotateY(0);
           transform: rotateY(0);
   left: 0;
-  background: #07009B;
+  background: -webkit-gradient(
+  linear,
+  left bottom,
+  left top,
+  color-stop(0, rgb(0,50,150)),
+  color-stop(0.50, rgb(0,150,255))
+  );
 }
 .tgl-flip:checked + .tgl-btn:active:after {
   -webkit-transform: rotateY(20deg);
