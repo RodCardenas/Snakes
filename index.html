@@ -1,28 +1,55 @@
 <html>
   <head>
-    <link rel="stylesheet" type="text/css" href="./css/snake.css">
-    <audio preload="auto" id="pokesong" autoplay loop src="https://a.tumblr.com/tumblr_m2c1c9uMBL1rtntgko1.mp3"></audio>
+    <link rel="stylesheet" type="text/css" href="./css/game.css">
+    <audio preload="auto" id="pokesong" autoplay loop src="http://www.protoman.com/Music/Music/Super%20Smash%20Brothers%20Melee/SSBM%20-%2016%20Pokemon%20Stadium.mp3"></audio>
     <script type="text/javascript" src="./js/jquery-2.1.1.js"></script>
     <script type="text/javascript" src="./js/bundle.js"></script>
-
   </head>
 
   <body>
-    <div class="play-area">
+    <input type="image" src="./img/mute.png" class="pokesong button"/>
+    <div id="gameover" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close">×</span>
+          <p>Game Over!</p>
+        </div>
+        <div class="modal-body">
+          <p id="reason"></p>
+        </div>
+        <iframe id="loser" src="http://giphy.com/embed/PiiQ5B1XxxiX6?html5=true" frameBorder="0"></iframe>
+      </div>
+    </div>
+
+    <div class="all">
       <div class="title-container">
         <h3 class="title">Snakes: <em class="fire">Red</em> <em class="fire">V</em><em class="water">s Blue</em></h3>
       </div>
 
+      <div class="selectors-container">
+        <input id="players" type="checkbox" class="tgl tgl-flip">
+        <label id="players-label" tagOff="웃 v 웃" tagOn="&#50883 v &#128187" for="players" class="tgl-btn"/>
+      </div>
+
       <div class="instructions-container">
-        <h3 class ="instructions"> L, U, D, R arrows control the <em class="fire">red snake</em>. W, A, S, D control the <em class="water">blue snake.</em></h3>
+          <div id="red-instructions" class="instructions">
+            <img src="./img/LUDR.png">
+            </br>
+            <em class="fire">red snake</em>
+          </div>
+          <div id="instructions-spacer" class="spacer">
+          </div>
+          <div id="blue-instructions" class="instructions">
+            <img src="./img/WASD.png">
+            </br>
+            <em class="water">blue snake</em>
+          </div>
       </div>
 
-      <div class="button-container">
-        <button class="start-game button">START THE GAME</button>
-        <button class="pokesong button">❚❚</button>
+      <div class="play-area">
+        <figure class="snake"></figure>
+        <div class="start-game">Click to Start</div>
       </div>
-
-      <figure class="snake"></figure>
     </div>
  </body>
 </html>
