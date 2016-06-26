@@ -22,10 +22,19 @@ View.prototype.setupDOMObj = function () {
 View.prototype.step = function () {
   try{
     var boardInfo = this.board.render();
-
   }catch(e){
     clearInterval(this.loop);
-    alert(e.message);
+    if(e.message.includes("Red")){
+      $("#loser").attr("src", "http://giphy.com/embed/SKkHndWFqOjjG?html5=true");
+      $(".modal-content").css("background-color", "rgb(0,150,255)");
+    } else {
+      $("#loser").attr("src", "http://giphy.com/embed/3VQDfP4q4ZYyY?html5=true");
+      $(".modal-content").css("background-color", "rgb(255,40,0)");
+    }
+
+    $("#reason").text(e.message);
+    $("#gameover").css({display: "block"});
+    $(".start-game").css("display", "block");
     this.loop = null;
     return;
   }
@@ -56,6 +65,7 @@ View.prototype.bindEvents = function () {
   view.addStartGame();
   view.addMusic();
   view.addPlayersSelection();
+  view.addModalInteraction();
 
   $(".snake").focus();
   $(window).on("keydown", function(e){
@@ -65,9 +75,11 @@ View.prototype.bindEvents = function () {
 
 View.prototype.addStartGame = function () {
   var view = this;
-  $(".start-game").on("click", function(e){
+
+  $(".snake").on("click", function(e){
     e.preventDefault();
     if(view.loop === null){
+      $(".start-game").css("display", "none");
       view.board.reset();
       view.loop = setInterval(view.step.bind(view), 250);
     }
@@ -85,12 +97,12 @@ View.prototype.addMusic = function () {
     if(playpause)
     {
       audio.pause();
-      $(".pokesong").text("►");
+      $(".pokesong").attr("src","./img/play.png");
     }
     else
     {
       audio.play();
-      $(".pokesong").text("❚❚");
+      $(".pokesong").attr("src","./img/mute.png");
     }
   });
 };
@@ -113,7 +125,6 @@ View.prototype.addPlayersSelection = function () {
     }
   });
 };
-
 
 View.prototype.removeSnakeColorOption = function() {
   $("#color").remove();
@@ -170,6 +181,21 @@ View.prototype.addPlayerInstructions = function (color) {
     $('<em />', {class:"water", text:"Blue Snake"}).appendTo(instructionsEl);
   }
 };
+
+View.prototype.addModalInteraction = function(){
+  var modal = $("#gameover");
+
+  $(".close").on("click", function() {
+    modal.css({display: "none"});
+  });
+
+  window.onclick = function(event) {
+    if (event.target.id === "gameover" ) {
+      modal.css({display: "none"});
+    }
+  };
+};
+
 View.prototype.removePlayerInstructions = function (color) {
   $("#" + color + "-instructions").remove();
 };

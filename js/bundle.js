@@ -56,7 +56,7 @@
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Board = __webpack_require__(3);
+	var Board = __webpack_require__(2);
 	
 	var View = function($el){
 	  this.SIZE = [20,20];
@@ -80,10 +80,19 @@
 	View.prototype.step = function () {
 	  try{
 	    var boardInfo = this.board.render();
-	
 	  }catch(e){
 	    clearInterval(this.loop);
-	    alert(e.message);
+	    if(e.message.includes("Red")){
+	      $("#loser").attr("src", "http://giphy.com/embed/SKkHndWFqOjjG?html5=true");
+	      $(".modal-content").css("background-color", "rgb(0,150,255)");
+	    } else {
+	      $("#loser").attr("src", "http://giphy.com/embed/3VQDfP4q4ZYyY?html5=true");
+	      $(".modal-content").css("background-color", "rgb(255,40,0)");
+	    }
+	
+	    $("#reason").text(e.message);
+	    $("#gameover").css({display: "block"});
+	    $(".start-game").css("display", "block");
 	    this.loop = null;
 	    return;
 	  }
@@ -114,6 +123,7 @@
 	  view.addStartGame();
 	  view.addMusic();
 	  view.addPlayersSelection();
+	  view.addModalInteraction();
 	
 	  $(".snake").focus();
 	  $(window).on("keydown", function(e){
@@ -123,9 +133,11 @@
 	
 	View.prototype.addStartGame = function () {
 	  var view = this;
-	  $(".start-game").on("click", function(e){
+	
+	  $(".snake").on("click", function(e){
 	    e.preventDefault();
 	    if(view.loop === null){
+	      $(".start-game").css("display", "none");
 	      view.board.reset();
 	      view.loop = setInterval(view.step.bind(view), 250);
 	    }
@@ -143,12 +155,12 @@
 	    if(playpause)
 	    {
 	      audio.pause();
-	      $(".pokesong").text("►");
+	      $(".pokesong").attr("src","./img/play.png");
 	    }
 	    else
 	    {
 	      audio.play();
-	      $(".pokesong").text("❚❚");
+	      $(".pokesong").attr("src","./img/mute.png");
 	    }
 	  });
 	};
@@ -171,7 +183,6 @@
 	    }
 	  });
 	};
-	
 	
 	View.prototype.removeSnakeColorOption = function() {
 	  $("#color").remove();
@@ -228,6 +239,21 @@
 	    $('<em />', {class:"water", text:"Blue Snake"}).appendTo(instructionsEl);
 	  }
 	};
+	
+	View.prototype.addModalInteraction = function(){
+	  var modal = $("#gameover");
+	
+	  $(".close").on("click", function() {
+	    modal.css({display: "none"});
+	  });
+	
+	  window.onclick = function(event) {
+	    if (event.target.id === "gameover" ) {
+	      modal.css({display: "none"});
+	    }
+	  };
+	};
+	
 	View.prototype.removePlayerInstructions = function (color) {
 	  $("#" + color + "-instructions").remove();
 	};
@@ -271,6 +297,127 @@
 
 /***/ },
 /* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Snake = __webpack_require__(3);
+	
+	var Board = function(size){
+	  this.size = size;
+	  this.snake1 = new Snake([Math.floor(size[0]/2), Math.floor(size[1]/2)], "Red");
+	  this.snake2 = new Snake([Math.floor(size[0]/2) + 1, Math.floor(size[1]/2)], "Blue");
+	  this.apple = [Math.floor(Math.random() * size[0]),
+	    Math.floor(Math.random() * size[1])];
+	};
+	
+	Board.prototype.move = function (direction) {
+	  var snake1Dirs = ["N","E","W","S"];
+	  var snake2Dirs = ["up","right","left","down"];
+	  if(snake1Dirs.indexOf(direction) !== -1 ){
+	    this.snake1.turn(direction);
+	  }else if (snake2Dirs.indexOf(direction) !== -1) {
+	    this.snake2.turn(direction);
+	  }
+	};
+	
+	Board.prototype.render = function () {
+	  this.snake1.move();
+	  this.snake2.move();
+	
+	  try {
+	    this.snake1.harakiri();
+	  }catch(e){
+	    throw new Error("Red Snake went over itself!");
+	  }
+	
+	  try {
+	    this.snake2.harakiri();
+	  }catch(e){
+	    throw new Error("Blue Snake went over itself!");
+	  }
+	
+	  try {
+	  this.snakeOutOfBounds(this.snake1);
+	  }catch(e){
+	    throw new Error("Red Snake Out of Bounds!");
+	  }
+	
+	  try {
+	    this.snakeOutOfBounds(this.snake2);
+	  }catch(e){
+	    throw new Error("Blue Snake Out of Bounds!");
+	  }
+	
+	  try {
+	    this.snakeCrossing(this.snake1, this.snake2);
+	  }catch(e){
+	    throw new Error("Red Snake ran into the other Snake!");
+	  }
+	
+	  try {
+	    this.snakeCrossing(this.snake2, this.snake1);
+	  }catch(e){
+	    throw new Error("Blue Snake ran into the other Snake!");
+	  }
+	
+	  this.ateApple(this.snake1);
+	  this.ateApple(this.snake2);
+	
+	  return this.draw();
+	};
+	
+	Board.prototype.snakeCrossing = function (snake1, snake2) {
+	  var head = snake1.segments[0];
+	  snake2.segments.forEach(function(el, idx){
+	    if(idx > 0){
+	      if(head[0] === el[0] && head[1] === el[1]){
+	        throw new Error("Snake dead!");
+	      }
+	    }
+	  });
+	};
+	
+	Board.prototype.ateApple = function (snake) {
+	  if (snake.segments[0][0] === this.apple[0] &&
+	        snake.segments[0][1] === this.apple[1]){
+	    snake.grow();
+	    this.regenerateApple();
+	  }
+	};
+	
+	Board.prototype.reset = function () {
+	  this.snake1 = new Snake([Math.floor(this.size[0]/2),
+	    Math.floor(this.size[1]/2)], "Red");
+	  this.snake2 = new Snake([Math.floor(this.size[0]/2) + 1,
+	    Math.floor(this.size[1]/2)], "Blue");
+	  this.apple = [Math.floor(Math.random() * this.size[0]),
+	    Math.floor(Math.random() * this.size[1])];
+	};
+	
+	Board.prototype.snakeOutOfBounds = function (snake) {
+	  if (snake.segments[0][0] > this.size[0] ||
+	    snake.segments[0][0] < 0 ||
+	    snake.segments[0][1] > this.size[1] ||
+	    snake.segments[0][1] < 0){
+	    throw new Error("Snake out of bounds!");
+	  }
+	};
+	
+	Board.prototype.draw = function () {
+	  return {snakeone: this.snake1.segments,
+	          snaketwo: this.snake2.segments,
+	          apple: this.apple};
+	};
+	
+	Board.prototype.regenerateApple = function () {
+	  this.apple = [Math.floor(Math.random() * this.size[0]),
+	    Math.floor(Math.random() * this.size[1])];
+	};
+	
+	module.exports = Board;
+
+
+/***/ },
+/* 3 */
 /***/ function(module, exports) {
 
 	var Snake = function(pos, color){
@@ -340,129 +487,14 @@
 	  this.turnsToGrow += 1;
 	};
 	
+	Snake.prototype.manhattanDistance = function (node1, node2, size) {
+	    var dx = Math.abs( node1.x - node2.x );
+	    var dy = Math.abs( node1.y - node2.y );
+	    return dx + dy;
+	};
+	
 	
 	module.exports = Snake;
-
-
-/***/ },
-/* 3 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Snake = __webpack_require__(2);
-	
-	var Board = function(size){
-	  this.size = size;
-	  this.snake1 = new Snake([Math.floor(size[0]/2), Math.floor(size[1]/2)], "Red");
-	  this.snake2 = new Snake([Math.floor(size[0]/2) + 1, Math.floor(size[1]/2)], "Blue");
-	  this.apple = [Math.floor(Math.random() * size[0]),
-	    Math.floor(Math.random() * size[1])];
-	};
-	
-	Board.prototype.move = function (direction) {
-	  var snake1Dirs = ["N","E","W","S"];
-	  var snake2Dirs = ["up","right","left","down"];
-	  if(snake1Dirs.indexOf(direction) !== -1 ){
-	    this.snake1.turn(direction);
-	  }else if (snake2Dirs.indexOf(direction) !== -1) {
-	    this.snake2.turn(direction);
-	  }
-	};
-	
-	Board.prototype.render = function () {
-	  this.snake1.move();
-	  this.snake2.move();
-	
-	  try {
-	    this.snake1.harakiri();
-	  }catch(e){
-	    throw new Error("Red Snake went over itself and is dead!");
-	  }
-	
-	  try {
-	    this.snake2.harakiri();
-	  }catch(e){
-	    throw new Error("Blue Snake went over itself and is dead!");
-	  }
-	
-	  try {
-	  this.snakeOutOfBounds(this.snake1);
-	  }catch(e){
-	    throw new Error("Red Snake Out of Bounds!");
-	  }
-	
-	  try {
-	    this.snakeOutOfBounds(this.snake2);
-	  }catch(e){
-	    throw new Error("Blue Snake Out of Bounds!");
-	  }
-	
-	  try {
-	    this.snakeCrossing(this.snake1, this.snake2);
-	  }catch(e){
-	    throw new Error("Red Snake ran into Blue Snake!");
-	  }
-	
-	  try {
-	    this.snakeCrossing(this.snake2, this.snake1);
-	  }catch(e){
-	    throw new Error("Blue Snake ran into Red Snake!");
-	  }
-	
-	  this.ateApple(this.snake1);
-	  this.ateApple(this.snake2);
-	
-	  return this.draw();
-	};
-	
-	Board.prototype.snakeCrossing = function (snake1, snake2) {
-	  var head = snake1.segments[0];
-	  snake2.segments.forEach(function(el, idx){
-	    if(idx > 0){
-	      if(head[0] === el[0] && head[1] === el[1]){
-	        throw new Error("Snake dead!");
-	      }
-	    }
-	  });
-	};
-	
-	Board.prototype.ateApple = function (snake) {
-	  if (snake.segments[0][0] === this.apple[0] &&
-	        snake.segments[0][1] === this.apple[1]){
-	    snake.grow();
-	    this.regenerateApple();
-	  }
-	};
-	
-	Board.prototype.reset = function () {
-	  this.snake1 = new Snake([Math.floor(this.size[0]/2),
-	    Math.floor(this.size[1]/2)], "Red");
-	  this.snake2 = new Snake([Math.floor(this.size[0]/2) + 1,
-	    Math.floor(this.size[1]/2)], "Blue");
-	  this.apple = [Math.floor(Math.random() * this.size[0]),
-	    Math.floor(Math.random() * this.size[1])];
-	};
-	
-	Board.prototype.snakeOutOfBounds = function (snake) {
-	  if (snake.segments[0][0] > this.size[0] ||
-	    snake.segments[0][0] < 0 ||
-	    snake.segments[0][1] > this.size[1] ||
-	    snake.segments[0][1] < 0){
-	    throw new Error("Snake out of bounds!");
-	  }
-	};
-	
-	Board.prototype.draw = function () {
-	  return {snakeone: this.snake1.segments,
-	          snaketwo: this.snake2.segments,
-	          apple: this.apple};
-	};
-	
-	Board.prototype.regenerateApple = function () {
-	  this.apple = [Math.floor(Math.random() * this.size[0]),
-	    Math.floor(Math.random() * this.size[1])];
-	};
-	
-	module.exports = Board;
 
 
 /***/ }

@@ -25,13 +25,13 @@ Board.prototype.render = function () {
   try {
     this.snake1.harakiri();
   }catch(e){
-    throw new Error("Red Snake went over itself and is dead!");
+    throw new Error("Red Snake went over itself!");
   }
 
   try {
     this.snake2.harakiri();
   }catch(e){
-    throw new Error("Blue Snake went over itself and is dead!");
+    throw new Error("Blue Snake went over itself!");
   }
 
   try {
@@ -49,13 +49,13 @@ Board.prototype.render = function () {
   try {
     this.snakeCrossing(this.snake1, this.snake2);
   }catch(e){
-    throw new Error("Red Snake ran into Blue Snake!");
+    throw new Error("Red Snake ran into the other Snake!");
   }
 
   try {
     this.snakeCrossing(this.snake2, this.snake1);
   }catch(e){
-    throw new Error("Blue Snake ran into Red Snake!");
+    throw new Error("Blue Snake ran into the other Snake!");
   }
 
   this.ateApple(this.snake1);

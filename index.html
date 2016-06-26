@@ -1,14 +1,27 @@
 <html>
   <head>
     <link rel="stylesheet" type="text/css" href="./css/game.css">
-    <audio preload="auto" id="pokesong" autoplay loop src="https://a.tumblr.com/tumblr_m2c1c9uMBL1rtntgko1.mp3"></audio>
+    <audio preload="auto" id="pokesong" autoplay loop src="http://www.protoman.com/Music/Music/Super%20Smash%20Brothers%20Melee/SSBM%20-%2016%20Pokemon%20Stadium.mp3"></audio>
     <script type="text/javascript" src="./js/jquery-2.1.1.js"></script>
     <script type="text/javascript" src="./js/bundle.js"></script>
-
   </head>
 
   <body>
-    <div class="play-area">
+    <input type="image" src="./img/mute.png" class="pokesong button"/>
+    <div id="gameover" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close">×</span>
+          <p>Game Over!</p>
+        </div>
+        <div class="modal-body">
+          <p id="reason"></p>
+        </div>
+        <iframe id="loser" src="http://giphy.com/embed/PiiQ5B1XxxiX6?html5=true" frameBorder="0"></iframe>
+      </div>
+    </div>
+
+    <div class="all">
       <div class="title-container">
         <h3 class="title">Snakes: <em class="fire">Red</em> <em class="fire">V</em><em class="water">s Blue</em></h3>
       </div>
@@ -33,12 +46,10 @@
           </div>
       </div>
 
-      <div class="button-container">
-        <button class="start-game button">START THE GAME</button>
-        <button class="pokesong button">❚❚</button>
+      <div class="play-area">
+        <figure class="snake"></figure>
+        <div class="start-game">Click to Start</div>
       </div>
-
-      <figure class="snake"></figure>
     </div>
  </body>
 </html>
