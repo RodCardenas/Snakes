@@ -67,8 +67,6 @@ body{
   font-weight: normal;
   letter-spacing: 1px;
 }
-<<<<<<< HEAD:css/snake.css
-=======
 
 .pokesong{
   width: 15px;
@@ -89,7 +87,6 @@ body{
   text-align: center;
 }
 
->>>>>>> master:css/game.css
 .snake{
   border: 5px solid black;
   width: 560px;
