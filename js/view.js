@@ -88,6 +88,17 @@ View.prototype.addStartGame = function () {
       view.loop = setInterval(view.step.bind(view), 250);
     }
   });
+
+  $(".start-game").on("click", function(e){
+    e.preventDefault();
+    if(view.loop === null){
+      $(".start-game").css("display", "none");
+      $("#players-label").hide("slow");
+      $("#color-label").hide("slow");
+      view.board.reset();
+      view.loop = setInterval(view.step.bind(view), 250);
+    }
+  });
 };
 
 View.prototype.addMusic = function () {
@@ -157,6 +168,7 @@ View.prototype.addSnakeColorOption = function() {
   $("#instructions-spacer").remove();
 
   view.addPlayerInstructions("red");
+  view.board.setSmartSnake("Blue");
 
   $("#color-label").on("click", function(e){
     if($("#color").prop('checked')){

@@ -146,6 +146,17 @@
 	      view.loop = setInterval(view.step.bind(view), 250);
 	    }
 	  });
+	
+	  $(".start-game").on("click", function(e){
+	    e.preventDefault();
+	    if(view.loop === null){
+	      $(".start-game").css("display", "none");
+	      $("#players-label").hide("slow");
+	      $("#color-label").hide("slow");
+	      view.board.reset();
+	      view.loop = setInterval(view.step.bind(view), 250);
+	    }
+	  });
 	};
 	
 	View.prototype.addMusic = function () {
@@ -215,6 +226,7 @@
 	  $("#instructions-spacer").remove();
 	
 	  view.addPlayerInstructions("red");
+	  view.board.setSmartSnake("Blue");
 	
 	  $("#color-label").on("click", function(e){
 	    if($("#color").prop('checked')){
@@ -307,15 +319,15 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var Snake = __webpack_require__(3);
-	var SmartSnake = __webpack_require__(4);
+	var SmartSnake = __webpack_require__(5);
 	
 	// Snake 1 == Red
 	// Snake 2 == Blue
 	
 	var Board = function(size){
 	  this.size = size;
-	  this.snake1 = new Snake([Math.floor(size[0]/2), Math.floor(size[1]/2)]);
-	  this.snake2 = new Snake([Math.floor(size[0]/2) + 1, Math.floor(size[1]/2)]);
+	  this.snake1 = new Snake([Math.floor(size[0]/2) - 1, Math.floor(size[1]/2)]);
+	  this.snake2 = new Snake([Math.floor(size[0]/2), Math.floor(size[1]/2)]);
 	  this.apple = [Math.floor(Math.random() * size[0]),
 	    Math.floor(Math.random() * size[1])];
 	  this.ai = false;
@@ -325,32 +337,35 @@
 	  var size = this.size;
 	
 	  if (color === "Red") {
-	    this.snake1 = new SmartSnake([Math.floor(size[0]/2), Math.floor(size[1]/2)]);
+	    this.snake1 = new SmartSnake([Math.floor(size[0]/2) - 1, Math.floor(size[1]/2)]);
+	    this.snake2 = new Snake([Math.floor(size[0]/2), Math.floor(size[1]/2)]);
 	  } else {
-	    this.snake2 = new SmartSnake([Math.floor(size[0]/2) + 1, Math.floor(size[1]/2)]);
+	    this.snake1 = new Snake([Math.floor(size[0]/2) - 1, Math.floor(size[1]/2)]);
+	    this.snake2 = new SmartSnake([Math.floor(size[0]/2), Math.floor(size[1]/2)]);
 	  }
 	};
 	
 	Board.prototype.removeSmartSnake = function () {
 	  var size = this.size;
 	
-	  this.snake1 = new Snake([Math.floor(size[0]/2), Math.floor(size[1]/2)]);
-	  this.snake2 = new Snake([Math.floor(size[0]/2) + 1, Math.floor(size[1]/2)]);
+	  this.snake1 = new Snake([Math.floor(size[0]/2) - 1, Math.floor(size[1]/2)]);
+	  this.snake2 = new Snake([Math.floor(size[0]/2), Math.floor(size[1]/2)]);
 	};
 	
 	Board.prototype.move = function (direction) {
 	  var snake1Dirs = ["N","E","W","S"];
 	  var snake2Dirs = ["up","right","left","down"];
-	  if(snake1Dirs.indexOf(direction) !== -1 ){
+	
+	  if(snake1Dirs.indexOf(direction) !== -1 && !(this.snake1 instanceof SmartSnake)){
 	    this.snake1.turn(direction);
-	  }else if (snake2Dirs.indexOf(direction) !== -1) {
+	  }else if (snake2Dirs.indexOf(direction) !== -1 && !(this.snake2 instanceof SmartSnake)) {
 	    this.snake2.turn(direction);
 	  }
 	};
 	
 	Board.prototype.render = function () {
-	  this.snake1.move();
-	  this.snake2.move();
+	  this.snake1.move(this.apple);
+	  this.snake2.move(this.apple);
 	
 	  try {
 	    this.snake1.harakiri();
@@ -414,10 +429,22 @@
 	};
 	
 	Board.prototype.reset = function () {
-	  this.snake1 = new Snake([Math.floor(this.size[0]/2),
-	    Math.floor(this.size[1]/2)]);
-	  this.snake2 = new Snake([Math.floor(this.size[0]/2) + 1,
-	    Math.floor(this.size[1]/2)]);
+	  var size = this.size;
+	
+	  if (this.snake1 instanceof SmartSnake) {
+	    this.snake1 = new SmartSnake([Math.floor(size[0]/2) - 1, Math.floor(size[1]/2)]);
+	  } else {
+	    this.snake1 = new Snake([Math.floor(this.size[0]/2) - 1,
+	      Math.floor(this.size[1]/2)]);
+	  }
+	
+	  if (this.snake2 instanceof SmartSnake) {
+	    this.snake2 = new SmartSnake([Math.floor(size[0]/2), Math.floor(size[1]/2)]);
+	  } else {
+	    this.snake2 = new Snake([Math.floor(this.size[0]/2),
+	      Math.floor(this.size[1]/2)]);
+	  }
+	
 	  this.apple = [Math.floor(Math.random() * this.size[0]),
 	    Math.floor(Math.random() * this.size[1])];
 	};
@@ -518,7 +545,8 @@
 
 
 /***/ },
-/* 4 */
+/* 4 */,
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Snake = __webpack_require__(3);
@@ -531,41 +559,47 @@
 	};
 	
 	var SmartSnake = function (pos){
-	  Snake.call(this, pos);
+	  this.direction = "N";
+	  this.segments = [pos];
+	  this.turnsToGrow = 0;
+	  this.type = "SmartSnake";
+	  console.log("SmartSnake");
 	};
 	
 	SmartSnake.inherits(Snake);
 	
-	// SmartSnake.prototype.move = function () {
-	//   var head = this.segments[0];
-	//   var segment = [];
-	//   switch (this.direction)
-	//   {
-	//     case "up":
-	//       segment = [head[0],head[1] - 1];
-	//       break;
-	//     case "down":
-	//       segment = [head[0],head[1] + 1];
-	//       break;
-	//     case "right":
-	//       segment = [head[0] + 1, head[1]];
-	//       break;
-	//     case "left":
-	//       segment = [head[0] - 1,head[1]];
-	//       break;
-	//   }
-	//
-	//   this.segments.unshift(segment);
-	//   if (this.turnsToGrow > 0){
-	//     this.turnsToGrow--;
-	//   }else{
-	//     this.segments.pop(1);
-	//   }
-	// };
+	SmartSnake.prototype.move = function () {
+	  var head = this.segments[0];
+	  var segment = [];
 	
-	SmartSnake.prototype.manhattanDistance = function (node1, node2, size) {
-	    var dx = Math.abs( node1.x - node2.x );
-	    var dy = Math.abs( node1.y - node2.y );
+	  segment = [head[0],head[1] - 1];
+	  // switch (this.direction)
+	  // {
+	  //   case "up":
+	  //     segment = [head[0],head[1] - 1];
+	  //     break;
+	  //   case "down":
+	  //     segment = [head[0],head[1] + 1];
+	  //     break;
+	  //   case "right":
+	  //     segment = [head[0] + 1, head[1]];
+	  //     break;
+	  //   case "left":
+	  //     segment = [head[0] - 1,head[1]];
+	  //     break;
+	  // }
+	
+	  this.segments.unshift(segment);
+	  if (this.turnsToGrow > 0){
+	    this.turnsToGrow--;
+	  }else{
+	    this.segments.pop(1);
+	  }
+	};
+	
+	SmartSnake.prototype.manhattanDistance = function (head, apple, size) {
+	    var dx = Math.abs( head.x - apple.x );
+	    var dy = Math.abs( head.y - apple.y );
 	    return dx + dy;
 	};
 	
