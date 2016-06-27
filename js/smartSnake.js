@@ -11,6 +11,7 @@ var SmartSnake = function (pos){
   Snake.call(this, pos);
   this.path = [];
   this.pathApple = [];
+  this.locations = [];
 };
 
 SmartSnake.inherits(Snake);
@@ -28,16 +29,10 @@ SmartSnake.prototype.move = function (board) {
     }
   }
 
-  this.direction = this.path.pop(1);
 
-  if (this.opposites(this.path[0], this.direction)) {
-    this.path.unshift(this.direction);
-    if (this.direction === "u" || this.direction === "d" ) {
-      this.direction = "r";
-    } else {
-      this.direction = "u";
-    }
-  }
+  this.direction = this.path.pop(1);
+  console.log("path = " + this.path);
+  console.log("dir = " + this.direction);
 
   switch (this.direction)
   {
@@ -91,25 +86,88 @@ SmartSnake.prototype.pathInterrupted = function (board) {
 
 SmartSnake.prototype.defineNewPath = function (head, board) {
   this.path = [];
-  var dx = head[0] - board.apple[0];
-  var dy = head[1] - board.apple[1];
+  this.locations = [];
+
+  var dx = board.apple[0] - head[0];
+  var dy = board.apple[1] - head[1];
   var distance = Math.abs(dx) + Math.abs(dy);
 
+  console.log("Making new path");
+  console.log("dx = " + dx + " dy = " + dy );
+  console.log("switch on " + this.direction);
+
+  switch (this.direction)
+  {
+    case "u":
+      if (dy > 0) {
+        if (dx < 0) {
+          this.path.push("r");
+          dx++;
+        } else {
+          this.path.push("l");
+          dx--;
+        }
+      }
+      break;
+    case "d":
+      if (dy < 0) {
+        if (dx < 0) {
+          this.path.push("r");
+          dx++;
+        } else {
+          this.path.push("l");
+          dx--;
+        }
+      }
+      break;
+    case "r":
+      if (dx < 0) {
+        if (dy < 0) {
+          this.path.push("u");
+          dy++;
+        } else {
+          this.path.push("d");
+          dy--;
+        }
+      }
+      break;
+    case "l":
+      if (dx > 0) {
+        if (dy < 0) {
+          this.path.push("u");
+          dy++;
+        } else {
+          this.path.push("d");
+          dy--;
+        }
+      }
+      break;
+  }
+
   while (this.path.length < distance){
-    if (dx > 0) {
+    // var position = this.path[this.path.length - 1];
+    if (dx < 0) {
       this.path.push("l");
-      dx--;
-    } else if (dy > 0) {
-      this.path.push("u");
-      dy--;
-    } else if (dy < 0) {
-      this.path.push("d");
-      dy++;
-    } else if (dx < 0) {
-      this.path.push("r");
+      // this.locations.push([position[0] - 1,position[1]]);
       dx++;
+    } else if (dy < 0) {
+      this.path.push("u");
+      // this.locations.push([position[0],position[1] + 1]);
+      dy++;
+    } else if (dy > 0) {
+      this.path.push("d");
+      // this.locations.push([position[0],position[1] - 1]);
+      dy--;
+    } else if (dx > 0) {
+      this.path.push("r");
+      // this.locations.push([position[0] + 1,position[1]]);
+      dx--;
     }
   }
+
+  this.path.push(this.path.shift(1));
+
+  console.log("Created Path " + this.path);
 };
 
 SmartSnake.prototype.opposites = function (dir1, dir2) {
