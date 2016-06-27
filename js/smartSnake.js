@@ -24,16 +24,17 @@ SmartSnake.prototype.move = function (board) {
   if (this.pathApple[0] !== board.apple[0] || this.pathApple[1] !== board.apple[1]) {
     this.pathApple = board.apple;
     this.defineNewPath(head, board);
-  } else {
-    if (this.path.length <= 1 ) { // || this.pathInterrupted(board))
-      this.defineNewPath(head, board);
-    }
   }
 
+  if (this.path.length < 1 ) {
+    this.defineNewPath(head, board);
+  }
 
   this.direction = this.path.pop(1);
-  console.log("path = " + this.path);
-  console.log("dir = " + this.direction);
+
+  if (this.checkIfPathInterrupted(board)) {
+    this.defineNewPath(head, board);
+  }
 
   switch (this.direction)
   {
@@ -65,22 +66,32 @@ SmartSnake.prototype.manhattanDistance = function (head, board) {
     return dx + dy;
 };
 
-SmartSnake.prototype.pathInterrupted = function (board) {
-  console.log("Checking Interruptions");
+SmartSnake.prototype.checkIfPathInterrupted = function (board) {
   var otherSnake;
+
   if (this !== board.snake1) {
     otherSnake = board.snake1;
   } else {
     otherSnake = board.snake2;
   }
 
-  otherSnake.segments.forEach(function(elSnake, sdx){
-    this.path.forEach(function(elPath, pdx) {
-      if(elSnake[0] === elPath[0] && elSnake[1] === elPath[1]){
+  for (var l = 0; l < this.locations.length; l++) {
+    for (var s = 0; s< otherSnake.segments.length; s++) {
+      var elSnake = otherSnake.segments[s];
+      var elPath = this.locations[l];
+      if (elSnake[0] === elPath[0] && elSnake[1] === elPath[1]) {
         return true;
       }
-    });
-  });
+    }
+
+    for (s = 0; s< this.segments.length; s++) {
+      elSnake = this.segments[s];
+      elPath = this.locations[l];
+      if (elSnake[0] === elPath[0] && elSnake[1] === elPath[1]) {
+        return true;
+      }
+    }
+  }
 
   return false;
 };
@@ -112,27 +123,58 @@ SmartSnake.prototype.defineNewPath = function (head, board) {
   }
 
   while (this.path.length < distance){
-    // var position = this.path[this.path.length - 1];
+    var position = this.locations[this.locations.length - 1] || head;
     if (dx < 0) {
       this.path.push("l");
-      // this.locations.push([position[0] - 1,position[1]]);
+      this.locations.push([position[0] - 1,position[1]]);
       dx++;
     } else if (dy < 0) {
       this.path.push("u");
-      // this.locations.push([position[0],position[1] + 1]);
+      this.locations.push([position[0],position[1] - 1]);
       dy++;
     } else if (dy > 0) {
       this.path.push("d");
-      // this.locations.push([position[0],position[1] - 1]);
+      this.locations.push([position[0],position[1] + 1]);
       dy--;
     } else if (dx > 0) {
       this.path.push("r");
-      // this.locations.push([position[0] + 1,position[1]]);
+      this.locations.push([position[0] + 1,position[1]]);
       dx--;
     }
   }
 
   this.path.push(this.path.shift(1));
+  position = this.locations[this.locations.length - 1];
+  switch (this.path[this.path.length - 1])
+  {
+    case "u":
+      this.locations.push([position[0],position[1] - 1]);
+      break;
+    case "d":
+      this.locations.push([position[0],position[1] + 1]);
+      break;
+    case "r":
+      this.locations.push([position[0] + 1,position[1]]);
+      break;
+    case "l":
+      this.locations.push([position[0] - 1,position[1]]);
+      break;
+  }
+};
+
+SmartSnake.prototype.checkStep = function(board, pos) {
+  var otherSnake;
+
+  if (this !== board.snake1) {
+    otherSnake = board.snake1;
+  } else {
+    otherSnake = board.snake2;
+  }
+
+  if(otherSnake.segments.include(pos)){
+    return false;
+  }
+  return true;
 };
 
 SmartSnake.prototype.chooseFirstStep = function(check1st, comparator, check2nd, direction, opposite) {
@@ -149,8 +191,6 @@ SmartSnake.prototype.chooseFirstStep = function(check1st, comparator, check2nd, 
 };
 
 SmartSnake.prototype.opposites = function (dir1, dir2) {
-  // console.log("1 = " + dir1);
-  // console.log("2 = " + dir2);
   if (dir1 === "u" && dir2 === "d" || dir2 === "u" && dir1 === "d") {
     return true;
   } else if (dir1 === "r" && dir2 === "l" || dir2 === "r" && dir1 === "l") {
