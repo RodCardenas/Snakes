@@ -44,8 +44,8 @@ Board.prototype.move = function (direction) {
 };
 
 Board.prototype.render = function () {
-  this.snake1.move(this.apple);
-  this.snake2.move(this.apple);
+  this.snake1.move(this.apple, this);
+  this.snake2.move(this.apple, this);
 
   try {
     this.snake1.harakiri();
