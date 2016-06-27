@@ -32,6 +32,7 @@ body{
   justify-content: center;
   align-items: center;
   margin-bottom: 10px;
+  min-height: 32px;
 }
 
 .spacer{
@@ -294,7 +295,7 @@ ul{
 
 .modal-content {
     background-color: purple;
-    margin: 20% auto;
+    margin: 15% auto;
     padding: 10px;
     border: 1px solid black;
     width: 30%;

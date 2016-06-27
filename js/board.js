@@ -1,11 +1,33 @@
 var Snake = require("./snake");
+var SmartSnake = require("./SmartSnake");
+
+// Snake 1 == Red
+// Snake 2 == Blue
 
 var Board = function(size){
   this.size = size;
-  this.snake1 = new Snake([Math.floor(size[0]/2), Math.floor(size[1]/2)], "Red");
-  this.snake2 = new Snake([Math.floor(size[0]/2) + 1, Math.floor(size[1]/2)], "Blue");
+  this.snake1 = new Snake([Math.floor(size[0]/2), Math.floor(size[1]/2)]);
+  this.snake2 = new Snake([Math.floor(size[0]/2) + 1, Math.floor(size[1]/2)]);
   this.apple = [Math.floor(Math.random() * size[0]),
     Math.floor(Math.random() * size[1])];
+  this.ai = false;
+};
+
+Board.prototype.setSmartSnake = function (color) {
+  var size = this.size;
+
+  if (color === "Red") {
+    this.snake1 = new SmartSnake([Math.floor(size[0]/2), Math.floor(size[1]/2)]);
+  } else {
+    this.snake2 = new SmartSnake([Math.floor(size[0]/2) + 1, Math.floor(size[1]/2)]);
+  }
+};
+
+Board.prototype.removeSmartSnake = function () {
+  var size = this.size;
+
+  this.snake1 = new Snake([Math.floor(size[0]/2), Math.floor(size[1]/2)]);
+  this.snake2 = new Snake([Math.floor(size[0]/2) + 1, Math.floor(size[1]/2)]);
 };
 
 Board.prototype.move = function (direction) {
@@ -85,9 +107,9 @@ Board.prototype.ateApple = function (snake) {
 
 Board.prototype.reset = function () {
   this.snake1 = new Snake([Math.floor(this.size[0]/2),
-    Math.floor(this.size[1]/2)], "Red");
+    Math.floor(this.size[1]/2)]);
   this.snake2 = new Snake([Math.floor(this.size[0]/2) + 1,
-    Math.floor(this.size[1]/2)], "Blue");
+    Math.floor(this.size[1]/2)]);
   this.apple = [Math.floor(Math.random() * this.size[0]),
     Math.floor(Math.random() * this.size[1])];
 };
