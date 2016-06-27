@@ -92,6 +92,8 @@
 	
 	    $("#reason").text(e.message);
 	    $("#gameover").css({display: "block"});
+	    $("#players-label").show();
+	    $("#color-label").show();
 	    $(".start-game").css("display", "block");
 	    this.loop = null;
 	    return;
@@ -139,6 +141,19 @@
 	    e.preventDefault();
 	    if(view.loop === null){
 	      $(".start-game").css("display", "none");
+	      $("#players-label").hide("slow");
+	      $("#color-label").hide("slow");
+	      view.board.reset();
+	      view.loop = setInterval(view.step.bind(view), 250);
+	    }
+	  });
+	
+	  $(".start-game").on("click", function(e){
+	    e.preventDefault();
+	    if(view.loop === null){
+	      $(".start-game").css("display", "none");
+	      $("#players-label").hide("slow");
+	      $("#color-label").hide("slow");
 	      view.board.reset();
 	      view.loop = setInterval(view.step.bind(view), 250);
 	    }
@@ -179,8 +194,10 @@
 	      view.addPlayerInstructions("red");
 	      $('<div />', { id:"instructions-spacer", class:"spacer"}).appendTo($(".instructions-container"));
 	      view.addPlayerInstructions("blue");
+	      view.board.ai = false;
 	    } else {
 	      view.addSnakeColorOption();
+	      view.board.ai = true;
 	    }
 	  });
 	};
@@ -189,18 +206,17 @@
 	  $("#color").remove();
 	  $("#color-label").remove();
 	  $("#selector-spacer").remove();
+	  this.board.removeSmartSnake();
 	};
 	
 	View.prototype.addSnakeColorOption = function() {
 	  var container = $(".selectors-container");
 	  var view = this;
 	
-	  //add elements
 	  $('<div />', { id:"selector-spacer", class:"spacer"}).appendTo(container);
 	  $('<input />', { type: 'checkbox', id: "color", class:"tgl tgl-flip"}).appendTo(container);
 	  $('<label />', { 'for': 'color', id: "color-label", tagOff:"웃", tagOn:"웃", class:"tgl-btn"}).appendTo(container);
 	
-	  //remove old instructions
 	  if($("#blue-instructions").length){
 	    view.removePlayerInstructions("blue");
 	  }
@@ -211,14 +227,17 @@
 	  $("#instructions-spacer").remove();
 	
 	  view.addPlayerInstructions("red");
-	  //add event listener
+	  view.board.setSmartSnake("Blue");
+	
 	  $("#color-label").on("click", function(e){
 	    if($("#color").prop('checked')){
 	      view.addPlayerInstructions("red");
 	      view.removePlayerInstructions("blue");
+	      view.board.setSmartSnake("Blue");
 	    } else {
 	      view.addPlayerInstructions("blue");
 	      view.removePlayerInstructions("red");
+	      view.board.setSmartSnake("Red");
 	    }
 	  });
 	};
@@ -301,28 +320,53 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var Snake = __webpack_require__(3);
+	var SmartSnake = __webpack_require__(5);
+	
+	// Snake 1 == Red
+	// Snake 2 == Blue
 	
 	var Board = function(size){
 	  this.size = size;
-	  this.snake1 = new Snake([Math.floor(size[0]/2), Math.floor(size[1]/2)], "Red");
-	  this.snake2 = new Snake([Math.floor(size[0]/2) + 1, Math.floor(size[1]/2)], "Blue");
+	  this.snake1 = new Snake([Math.floor(size[0]/2) - 1, Math.floor(size[1]/2)]);
+	  this.snake2 = new Snake([Math.floor(size[0]/2), Math.floor(size[1]/2)]);
 	  this.apple = [Math.floor(Math.random() * size[0]),
 	    Math.floor(Math.random() * size[1])];
+	  this.ai = false;
+	};
+	
+	Board.prototype.setSmartSnake = function (color) {
+	  var size = this.size;
+	
+	  if (color === "Red") {
+	    this.snake1 = new SmartSnake([Math.floor(size[0]/2) - 1, Math.floor(size[1]/2)]);
+	    this.snake2 = new Snake([Math.floor(size[0]/2), Math.floor(size[1]/2)]);
+	  } else {
+	    this.snake1 = new Snake([Math.floor(size[0]/2) - 1, Math.floor(size[1]/2)]);
+	    this.snake2 = new SmartSnake([Math.floor(size[0]/2), Math.floor(size[1]/2)]);
+	  }
+	};
+	
+	Board.prototype.removeSmartSnake = function () {
+	  var size = this.size;
+	
+	  this.snake1 = new Snake([Math.floor(size[0]/2) - 1, Math.floor(size[1]/2)]);
+	  this.snake2 = new Snake([Math.floor(size[0]/2), Math.floor(size[1]/2)]);
 	};
 	
 	Board.prototype.move = function (direction) {
 	  var snake1Dirs = ["N","E","W","S"];
 	  var snake2Dirs = ["up","right","left","down"];
-	  if(snake1Dirs.indexOf(direction) !== -1 ){
+	
+	  if(snake1Dirs.indexOf(direction) !== -1 && !(this.snake1 instanceof SmartSnake)){
 	    this.snake1.turn(direction);
-	  }else if (snake2Dirs.indexOf(direction) !== -1) {
+	  }else if (snake2Dirs.indexOf(direction) !== -1 && !(this.snake2 instanceof SmartSnake)) {
 	    this.snake2.turn(direction);
 	  }
 	};
 	
 	Board.prototype.render = function () {
-	  this.snake1.move();
-	  this.snake2.move();
+	  this.snake1.move(this);
+	  this.snake2.move(this);
 	
 	  try {
 	    this.snake1.harakiri();
@@ -386,10 +430,22 @@
 	};
 	
 	Board.prototype.reset = function () {
-	  this.snake1 = new Snake([Math.floor(this.size[0]/2),
-	    Math.floor(this.size[1]/2)], "Red");
-	  this.snake2 = new Snake([Math.floor(this.size[0]/2) + 1,
-	    Math.floor(this.size[1]/2)], "Blue");
+	  var size = this.size;
+	
+	  if (this.snake1 instanceof SmartSnake) {
+	    this.snake1 = new SmartSnake([Math.floor(size[0]/2) - 1, Math.floor(size[1]/2)]);
+	  } else {
+	    this.snake1 = new Snake([Math.floor(this.size[0]/2) - 1,
+	      Math.floor(this.size[1]/2)]);
+	  }
+	
+	  if (this.snake2 instanceof SmartSnake) {
+	    this.snake2 = new SmartSnake([Math.floor(size[0]/2), Math.floor(size[1]/2)]);
+	  } else {
+	    this.snake2 = new Snake([Math.floor(this.size[0]/2),
+	      Math.floor(this.size[1]/2)]);
+	  }
+	
 	  this.apple = [Math.floor(Math.random() * this.size[0]),
 	    Math.floor(Math.random() * this.size[1])];
 	};
@@ -421,11 +477,10 @@
 /* 3 */
 /***/ function(module, exports) {
 
-	var Snake = function(pos, color){
+	var Snake = function(pos){
 	  this.direction = "N";
 	  this.segments = [pos];
 	  this.turnsToGrow = 0;
-	  this.color = color;
 	};
 	
 	Snake.prototype.move = function () {
@@ -483,19 +538,144 @@
 	  return false;
 	};
 	
-	
 	Snake.prototype.grow = function () {
 	  this.turnsToGrow += 1;
 	};
 	
-	Snake.prototype.manhattanDistance = function (node1, node2, size) {
-	    var dx = Math.abs( node1.x - node2.x );
-	    var dy = Math.abs( node1.y - node2.y );
+	module.exports = Snake;
+
+
+/***/ },
+/* 4 */,
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Snake = __webpack_require__(3);
+	
+	Function.prototype.inherits = function (BaseClass) {
+	  function Surrogate () {}
+	  Surrogate.prototype = BaseClass.prototype;
+	  this.prototype = new Surrogate();
+	  this.prototype.constructor = this;
+	};
+	
+	var SmartSnake = function (pos){
+	  Snake.call(this, pos);
+	  this.path = [];
+	  this.pathApple = [];
+	};
+	
+	SmartSnake.inherits(Snake);
+	
+	SmartSnake.prototype.move = function (board) {
+	  var head = this.segments[0];
+	  var segment = [];
+	
+	  if (this.pathApple[0] !== board.apple[0] || this.pathApple[1] !== board.apple[1]) {
+	    this.pathApple = board.apple;
+	    this.defineNewPath(head, board);
+	  } else {
+	    if (this.path.length <= 1 ) { // || this.pathInterrupted(board))
+	      this.defineNewPath(head, board);
+	    }
+	  }
+	
+	  this.direction = this.path.pop(1);
+	
+	  if (this.opposites(this.path[0], this.direction)) {
+	    this.path.unshift(this.direction);
+	    if (this.direction === "u" || this.direction === "d" ) {
+	      this.direction = "r";
+	    } else {
+	      this.direction = "u";
+	    }
+	  }
+	
+	  switch (this.direction)
+	  {
+	    case "u":
+	      segment = [head[0],head[1] - 1];
+	      break;
+	    case "d":
+	      segment = [head[0],head[1] + 1];
+	      break;
+	    case "r":
+	      segment = [head[0] + 1, head[1]];
+	      break;
+	    case "l":
+	      segment = [head[0] - 1,head[1]];
+	      break;
+	  }
+	
+	  this.segments.unshift(segment);
+	  if (this.turnsToGrow > 0){
+	    this.turnsToGrow--;
+	  }else{
+	    this.segments.pop(1);
+	  }
+	};
+	
+	SmartSnake.prototype.manhattanDistance = function (head, board) {
+	    var dx = Math.abs( head[0] - board.apple[0] );
+	    var dy = Math.abs( head[1] - board.apple[1] );
 	    return dx + dy;
 	};
 	
+	SmartSnake.prototype.pathInterrupted = function (board) {
+	  console.log("Checking Interruptions");
+	  var otherSnake;
+	  if (this !== board.snake1) {
+	    otherSnake = board.snake1;
+	  } else {
+	    otherSnake = board.snake2;
+	  }
 	
-	module.exports = Snake;
+	  otherSnake.segments.forEach(function(elSnake, sdx){
+	    this.path.forEach(function(elPath, pdx) {
+	      if(elSnake[0] === elPath[0] && elSnake[1] === elPath[1]){
+	        return true;
+	      }
+	    });
+	  });
+	
+	  return false;
+	};
+	
+	SmartSnake.prototype.defineNewPath = function (head, board) {
+	  this.path = [];
+	  var dx = head[0] - board.apple[0];
+	  var dy = head[1] - board.apple[1];
+	  var distance = Math.abs(dx) + Math.abs(dy);
+	
+	  while (this.path.length < distance){
+	    if (dx > 0) {
+	      this.path.push("l");
+	      dx--;
+	    } else if (dy > 0) {
+	      this.path.push("u");
+	      dy--;
+	    } else if (dy < 0) {
+	      this.path.push("d");
+	      dy++;
+	    } else if (dx < 0) {
+	      this.path.push("r");
+	      dx++;
+	    }
+	  }
+	};
+	
+	SmartSnake.prototype.opposites = function (dir1, dir2) {
+	  // console.log("1 = " + dir1);
+	  // console.log("2 = " + dir2);
+	  if (dir1 === "u" && dir2 === "d" || dir2 === "u" && dir1 === "d") {
+	    return true;
+	  } else if (dir1 === "r" && dir2 === "l" || dir2 === "r" && dir1 === "l") {
+	    return true;
+	  }
+	  return false;
+	};
+	
+	module.exports = SmartSnake;
 
 
 /***/ }

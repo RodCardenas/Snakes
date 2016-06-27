@@ -34,6 +34,8 @@ View.prototype.step = function () {
 
     $("#reason").text(e.message);
     $("#gameover").css({display: "block"});
+    $("#players-label").show();
+    $("#color-label").show();
     $(".start-game").css("display", "block");
     this.loop = null;
     return;
@@ -81,6 +83,19 @@ View.prototype.addStartGame = function () {
     e.preventDefault();
     if(view.loop === null){
       $(".start-game").css("display", "none");
+      $("#players-label").hide("slow");
+      $("#color-label").hide("slow");
+      view.board.reset();
+      view.loop = setInterval(view.step.bind(view), 250);
+    }
+  });
+
+  $(".start-game").on("click", function(e){
+    e.preventDefault();
+    if(view.loop === null){
+      $(".start-game").css("display", "none");
+      $("#players-label").hide("slow");
+      $("#color-label").hide("slow");
       view.board.reset();
       view.loop = setInterval(view.step.bind(view), 250);
     }
@@ -121,8 +136,10 @@ View.prototype.addPlayersSelection = function () {
       view.addPlayerInstructions("red");
       $('<div />', { id:"instructions-spacer", class:"spacer"}).appendTo($(".instructions-container"));
       view.addPlayerInstructions("blue");
+      view.board.ai = false;
     } else {
       view.addSnakeColorOption();
+      view.board.ai = true;
     }
   });
 };
@@ -131,18 +148,17 @@ View.prototype.removeSnakeColorOption = function() {
   $("#color").remove();
   $("#color-label").remove();
   $("#selector-spacer").remove();
+  this.board.removeSmartSnake();
 };
 
 View.prototype.addSnakeColorOption = function() {
   var container = $(".selectors-container");
   var view = this;
 
-  //add elements
   $('<div />', { id:"selector-spacer", class:"spacer"}).appendTo(container);
   $('<input />', { type: 'checkbox', id: "color", class:"tgl tgl-flip"}).appendTo(container);
   $('<label />', { 'for': 'color', id: "color-label", tagOff:"웃", tagOn:"웃", class:"tgl-btn"}).appendTo(container);
 
-  //remove old instructions
   if($("#blue-instructions").length){
     view.removePlayerInstructions("blue");
   }
@@ -153,14 +169,17 @@ View.prototype.addSnakeColorOption = function() {
   $("#instructions-spacer").remove();
 
   view.addPlayerInstructions("red");
-  //add event listener
+  view.board.setSmartSnake("Blue");
+
   $("#color-label").on("click", function(e){
     if($("#color").prop('checked')){
       view.addPlayerInstructions("red");
       view.removePlayerInstructions("blue");
+      view.board.setSmartSnake("Blue");
     } else {
       view.addPlayerInstructions("blue");
       view.removePlayerInstructions("red");
+      view.board.setSmartSnake("Red");
     }
   });
 };

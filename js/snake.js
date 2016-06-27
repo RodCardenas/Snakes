@@ -1,8 +1,7 @@
-var Snake = function(pos, color){
+var Snake = function(pos){
   this.direction = "N";
   this.segments = [pos];
   this.turnsToGrow = 0;
-  this.color = color;
 };
 
 Snake.prototype.move = function () {
@@ -60,16 +59,8 @@ Snake.prototype.harakiri = function () {
   return false;
 };
 
-
 Snake.prototype.grow = function () {
   this.turnsToGrow += 1;
 };
-
-Snake.prototype.manhattanDistance = function (node1, node2, size) {
-    var dx = Math.abs( node1.x - node2.x );
-    var dy = Math.abs( node1.y - node2.y );
-    return dx + dy;
-};
-
 
 module.exports = Snake;
