@@ -15,38 +15,42 @@ var SmartSnake = function (pos){
 
 SmartSnake.inherits(Snake);
 
-SmartSnake.prototype.move = function (apple, board) {
+SmartSnake.prototype.move = function (board) {
   var head = this.segments[0];
   var segment = [];
 
-  console.log("head is at " + head);
-
-  if (this.pathApple[0] !== apple[0] || this.pathApple[1] !== apple[1]) {
-    console.log("New Apple");
-    this.pathApple = apple;
-    this.defineNewPath(head, apple);
+  if (this.pathApple[0] !== board.apple[0] || this.pathApple[1] !== board.apple[1]) {
+    this.pathApple = board.apple;
+    this.defineNewPath(head, board);
   } else {
-    if (this.path.length === 0 ) {
-      this.defineNewPath(head, apple);
+    if (this.path.length <= 1 ) { // || this.pathInterrupted(board))
+      this.defineNewPath(head, board);
     }
   }
 
   this.direction = this.path.pop(1);
 
-  // debugger;
+  if (this.opposites(this.path[0], this.direction)) {
+    this.path.unshift(this.direction);
+    if (this.direction === "u" || this.direction === "d" ) {
+      this.direction = "r";
+    } else {
+      this.direction = "u";
+    }
+  }
 
   switch (this.direction)
   {
-    case "up":
+    case "u":
       segment = [head[0],head[1] - 1];
       break;
-    case "down":
+    case "d":
       segment = [head[0],head[1] + 1];
       break;
-    case "right":
+    case "r":
       segment = [head[0] + 1, head[1]];
       break;
-    case "left":
+    case "l":
       segment = [head[0] - 1,head[1]];
       break;
   }
@@ -59,9 +63,9 @@ SmartSnake.prototype.move = function (apple, board) {
   }
 };
 
-SmartSnake.prototype.manhattanDistance = function (head, apple) {
-    var dx = Math.abs( head[0] - apple[0] );
-    var dy = Math.abs( head[1] - apple[1] );
+SmartSnake.prototype.manhattanDistance = function (head, board) {
+    var dx = Math.abs( head[0] - board.apple[0] );
+    var dy = Math.abs( head[1] - board.apple[1] );
     return dx + dy;
 };
 
@@ -85,27 +89,38 @@ SmartSnake.prototype.pathInterrupted = function (board) {
   return false;
 };
 
-SmartSnake.prototype.defineNewPath = function (head, apple) {
+SmartSnake.prototype.defineNewPath = function (head, board) {
   this.path = [];
-  var dx = head[0] - apple[0];
-  var dy = head[1] - apple[1];
+  var dx = head[0] - board.apple[0];
+  var dy = head[1] - board.apple[1];
   var distance = Math.abs(dx) + Math.abs(dy);
 
   while (this.path.length < distance){
     if (dx > 0) {
-      this.path.push("left");
+      this.path.push("l");
       dx--;
     } else if (dy > 0) {
-      this.path.push("up");
+      this.path.push("u");
       dy--;
     } else if (dy < 0) {
-      this.path.push("down");
+      this.path.push("d");
       dy++;
     } else if (dx < 0) {
-      this.path.push("right");
+      this.path.push("r");
       dx++;
     }
   }
+};
+
+SmartSnake.prototype.opposites = function (dir1, dir2) {
+  // console.log("1 = " + dir1);
+  // console.log("2 = " + dir2);
+  if (dir1 === "u" && dir2 === "d" || dir2 === "u" && dir1 === "d") {
+    return true;
+  } else if (dir1 === "r" && dir2 === "l" || dir2 === "r" && dir1 === "l") {
+    return true;
+  }
+  return false;
 };
 
 module.exports = SmartSnake;
