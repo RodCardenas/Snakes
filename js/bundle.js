@@ -465,9 +465,20 @@
 	          apple: this.apple};
 	};
 	
-	Board.prototype.regenerateApple = function () {
-	  this.apple = [Math.floor(Math.random() * this.size[0]),
+	Board.prototype.getOpenSpace = function() {
+	  var space = [Math.floor(Math.random() * this.size[0]),
 	    Math.floor(Math.random() * this.size[1])];
+	
+	  while(this.snake1.segments.includes(space) || this.snake2.segments.includes(space)){
+	    space = [Math.floor(Math.random() * this.size[0]),
+	      Math.floor(Math.random() * this.size[1])];
+	  }
+	
+	  return space;
+	};
+	
+	Board.prototype.regenerateApple = function () {
+	  this.apple = this.getOpenSpace();
 	};
 	
 	module.exports = Board;
@@ -561,8 +572,10 @@
 	
 	var SmartSnake = function (pos){
 	  Snake.call(this, pos);
+	  this.direction = "u";
 	  this.path = [];
 	  this.pathApple = [];
+	  this.locations = [];
 	};
 	
 	SmartSnake.inherits(Snake);
@@ -580,16 +593,10 @@
 	    }
 	  }
 	
-	  this.direction = this.path.pop(1);
 	
-	  if (this.opposites(this.path[0], this.direction)) {
-	    this.path.unshift(this.direction);
-	    if (this.direction === "u" || this.direction === "d" ) {
-	      this.direction = "r";
-	    } else {
-	      this.direction = "u";
-	    }
-	  }
+	  this.direction = this.path.pop(1);
+	  console.log("path = " + this.path);
+	  console.log("dir = " + this.direction);
 	
 	  switch (this.direction)
 	  {
@@ -643,25 +650,65 @@
 	
 	SmartSnake.prototype.defineNewPath = function (head, board) {
 	  this.path = [];
-	  var dx = head[0] - board.apple[0];
-	  var dy = head[1] - board.apple[1];
+	  this.locations = [];
+	
+	  var dx = board.apple[0] - head[0];
+	  var dy = board.apple[1] - head[1];
 	  var distance = Math.abs(dx) + Math.abs(dy);
+	  var greaterThan = true;
+	  var lessThan = false;
+	
+	  switch (this.direction)
+	  {
+	    case "u":
+	      dx = this.chooseFirstStep(dy, greaterThan, dx, "l", "r");
+	      break;
+	    case "d":
+	      dx = this.chooseFirstStep(dy, lessThan, dx, "l", "r");
+	      break;
+	    case "r":
+	      dy = this.chooseFirstStep(dx, lessThan, dy, "u", "d");
+	      break;
+	    case "l":
+	      dy = this.chooseFirstStep(dx, greaterThan, dy, "u", "d");
+	      break;
+	  }
 	
 	  while (this.path.length < distance){
-	    if (dx > 0) {
+	    // var position = this.path[this.path.length - 1];
+	    if (dx < 0) {
 	      this.path.push("l");
-	      dx--;
-	    } else if (dy > 0) {
-	      this.path.push("u");
-	      dy--;
-	    } else if (dy < 0) {
-	      this.path.push("d");
-	      dy++;
-	    } else if (dx < 0) {
-	      this.path.push("r");
+	      // this.locations.push([position[0] - 1,position[1]]);
 	      dx++;
+	    } else if (dy < 0) {
+	      this.path.push("u");
+	      // this.locations.push([position[0],position[1] + 1]);
+	      dy++;
+	    } else if (dy > 0) {
+	      this.path.push("d");
+	      // this.locations.push([position[0],position[1] - 1]);
+	      dy--;
+	    } else if (dx > 0) {
+	      this.path.push("r");
+	      // this.locations.push([position[0] + 1,position[1]]);
+	      dx--;
 	    }
 	  }
+	
+	  this.path.push(this.path.shift(1));
+	};
+	
+	SmartSnake.prototype.chooseFirstStep = function(check1st, comparator, check2nd, direction, opposite) {
+	  if (comparator ? (check1st > 0) : (check1st < 0)) {
+	    if (check2nd < 0) {
+	      this.path.push(direction);
+	      check2nd++;
+	    } else {
+	      this.path.push(opposite);
+	      check2nd--;
+	    }
+	  }
+	  return check2nd;
 	};
 	
 	SmartSnake.prototype.opposites = function (dir1, dir2) {

@@ -144,9 +144,20 @@ Board.prototype.draw = function () {
           apple: this.apple};
 };
 
-Board.prototype.regenerateApple = function () {
-  this.apple = [Math.floor(Math.random() * this.size[0]),
+Board.prototype.getOpenSpace = function() {
+  var space = [Math.floor(Math.random() * this.size[0]),
     Math.floor(Math.random() * this.size[1])];
+
+  while(this.snake1.segments.includes(space) || this.snake2.segments.includes(space)){
+    space = [Math.floor(Math.random() * this.size[0]),
+      Math.floor(Math.random() * this.size[1])];
+  }
+
+  return space;
+};
+
+Board.prototype.regenerateApple = function () {
+  this.apple = this.getOpenSpace();
 };
 
 module.exports = Board;
