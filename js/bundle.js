@@ -328,7 +328,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var Snake = __webpack_require__(3);
-	var SmartSnake = __webpack_require__(5);
+	var SmartSnake = __webpack_require__(4);
 	
 	// Snake 1 == Red
 	// Snake 2 == Blue
@@ -459,9 +459,9 @@
 	};
 	
 	Board.prototype.snakeOutOfBounds = function (snake) {
-	  if (snake.segments[0][0] > this.size[0] ||
+	  if (snake.segments[0][0] > this.size[0] - 1 ||
 	    snake.segments[0][0] < 0 ||
-	    snake.segments[0][1] > this.size[1] ||
+	    snake.segments[0][1] > this.size[1] - 1 ||
 	    snake.segments[0][1] < 0){
 	    throw new Error("Snake out of bounds!");
 	  }
@@ -565,8 +565,7 @@
 
 
 /***/ },
-/* 4 */,
-/* 5 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Snake = __webpack_require__(3);

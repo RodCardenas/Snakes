@@ -60,7 +60,7 @@ Snake.prototype.harakiri = function () {
 };
 
 Snake.prototype.grow = function () {
-  this.turnsToGrow += 2;
+  this.turnsToGrow += 1;
 };
 
 module.exports = Snake;
