@@ -130,9 +130,9 @@ Board.prototype.reset = function () {
 };
 
 Board.prototype.snakeOutOfBounds = function (snake) {
-  if (snake.segments[0][0] >= this.size[0] ||
+  if (snake.segments[0][0] >= this.size[0] - 1 ||
     snake.segments[0][0] < 0 ||
-    snake.segments[0][1] >= this.size[1] ||
+    snake.segments[0][1] >= this.size[1] - 1 ||
     snake.segments[0][1] < 0){
     throw new Error("Snake out of bounds!");
   }
